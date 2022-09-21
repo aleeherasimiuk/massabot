@@ -4,6 +4,7 @@ import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from datetime import datetime
 import random
+from dalle2 import Dalle2
 
 
 # Enable logging
@@ -13,6 +14,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 API_KEY = os.environ['API_KEY']
+DALLE_TOKEN = os.environ['DALLE_TOKEN']
+dalle = Dalle2(DALLE_TOKEN);
 
 def no_entendi(update, context):
   #update.message.reply_text("Qué decis walter? No se entiende.")
@@ -156,6 +159,16 @@ def pokemon(update, context):
   update.message.reply_photo(image, caption=response, parse_mode='Markdown')
 
 
+def imaginate(update, context):
+  prompt = update.message.text.split('/imaginate')[-1].strip()
+  file_paths = dalle.generate_and_download(prompt)
+  print(file_paths);
+  for path in file_paths:
+    with open(path, 'rb') as f:
+      update.message.reply_photo(f)
+    
+
+
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -174,9 +187,11 @@ def main():
     dp.add_handler(CommandHandler("massa", massa))
     dp.add_handler(CommandHandler("massa_yankee", massa_yankee))
     dp.add_handler(CommandHandler("pokemon", pokemon))
+    dp.add_handler(CommandHandler("imaginate", imaginate))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, no_entendi))
+
 
     # log all errors
     #dp.add_error_handler(error)

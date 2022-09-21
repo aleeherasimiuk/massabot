@@ -1,3 +1,4 @@
 python-telegram-bot==13.13
 requests==2.28.1
 urllib3==1.26.11
+dalle2==1.0.10
